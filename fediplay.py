@@ -25,7 +25,6 @@ class Queue(object):
 
         def run_thread(filename, cb_complete):
             print('==> Playing', filename)
-            cmd = 'ffplay -v 0 -nostats -hide_banner -autoexit -nodisp'.split()
             run(['ffplay', '-v', '0', '-nostats', '-hide_banner', '-autoexit', '-nodisp', filename])
             cb_complete()
 
