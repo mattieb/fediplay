@@ -15,5 +15,5 @@ if not os.path.exists('usercred.secret'):
     password = getpass('Password: ')
     login(API_BASE_URL, email, password)
 
-stream('https://cybre.space')
+stream(API_BASE_URL)
 
