@@ -25,7 +25,7 @@ class Queue(object):
 
         def run_thread(filename, cb_complete):
             print('==> Playing', filename)
-            run(['afplay', filename])
+            run(['ffplay', '-v', '0', '-nostats', '-hide_banner', '-autoexit', '-nodisp', filename])
             cb_complete()
 
         thread = Thread(target=run_thread, args=(filename, cb_complete))
