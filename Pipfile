@@ -9,8 +9,8 @@ name = "pypi"
 
 cssselect = "==1.0.1"
 lxml = "==4.1.1"
-"Mastodon.py" = "==1.1.2"
-youtube_dl = "==2017.11.26"
+"mastodon.py" = "*"
+youtube-dl = "==2017.11.26"
 
 
 [dev-packages]
