@@ -72,7 +72,7 @@ def login(api_base_url, email, password):
 def stream(api_base_url):
     client = Mastodon(client_id='clientcred.secret', access_token='usercred.secret', api_base_url=api_base_url)
     listener = StreamListener()
-    client.user_stream(listener)
+    client.stream_user(listener)
 
 def extract_tags(toot):
     return [tag['name'] for tag in toot['tags']]
