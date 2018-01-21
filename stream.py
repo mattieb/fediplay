@@ -15,5 +15,6 @@ if not os.path.exists('usercred.secret'):
     password = getpass('Password: ')
     login(API_BASE_URL, email, password)
 
-stream(API_BASE_URL)
+def run():
+    stream(API_BASE_URL)
 
