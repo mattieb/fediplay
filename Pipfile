@@ -1,0 +1,24 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+certifi = "==2017.11.5"
+chardet = "==3.0.4"
+cssselect = "==1.0.1"
+idna = "==2.6"
+lxml = "==4.1.1"
+"Mastodon.py" = "==1.1.2"
+python-dateutil = "==2.6.1"
+pytz = "==2017.3"
+requests = "==2.18.4"
+"urllib3" = "==1.22"
+youtube_dl = "==2017.11.26"
+
+
+[dev-packages]
+

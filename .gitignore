@@ -1,0 +1,3 @@
+*.pyc
+*.secret
+__pycache__
