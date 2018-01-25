@@ -1,5 +1,3 @@
-API_BASE_URL = 'https://cybre.space'
-
 from subprocess import run
 from threading import Thread, Lock
 
@@ -94,20 +92,26 @@ def extract_links(toot):
     return [link.attrib['href'] for link in all_links if not has_external_link_class(link.attrib.get('class', ''))]
 
 def main():
-    import os
     from getpass import getpass
+    from os import environ, path
+    from sys import exit
 
-    if not os.path.exists('clientcred.secret'):
+    api_base_url = environ.get('FEDIPLAY_API_BASE_URL')
+    if not api_base_url:
+        print('FEDIPLAY_API_BASE_URL environment variable not set')
+        exit(1)
+
+    if not path.exists('clientcred.secret'):
         print('==> No clientcred.secret; registering application')
-        register(API_BASE_URL)
+        register(api_base_url)
 
-    if not os.path.exists('usercred.secret'):
+    if not path.exists('usercred.secret'):
         print('==> No usercred.secret; logging in')
         email = input('Email: ')
         password = getpass('Password: ')
-        login(API_BASE_URL, email, password)
+        login(api_base_url, email, password)
 
-    stream(API_BASE_URL)
+    stream(api_base_url)
 
 if __name__ == '__main__':
     main()
