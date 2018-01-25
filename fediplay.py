@@ -1,3 +1,5 @@
+API_BASE_URL = 'https://cybre.space'
+
 from subprocess import run
 from threading import Thread, Lock
 
@@ -26,6 +28,7 @@ class Queue(object):
         def run_thread(filename, cb_complete):
             print('==> Playing', filename)
             run(['ffplay', '-v', '0', '-nostats', '-hide_banner', '-autoexit', '-nodisp', filename])
+            print('==> Playback complete')
             cb_complete()
 
         thread = Thread(target=run_thread, args=(filename, cb_complete))
@@ -90,3 +93,21 @@ def extract_links(toot):
     all_links = html.cssselect('a')
     return [link.attrib['href'] for link in all_links if not has_external_link_class(link.attrib.get('class', ''))]
 
+def main():
+    import os
+    from getpass import getpass
+
+    if not os.path.exists('clientcred.secret'):
+        print('==> No clientcred.secret; registering application')
+        register(API_BASE_URL)
+
+    if not os.path.exists('usercred.secret'):
+        print('==> No usercred.secret; logging in')
+        email = input('Email: ')
+        password = getpass('Password: ')
+        login(API_BASE_URL, email, password)
+
+    stream(API_BASE_URL)
+
+if __name__ == '__main__':
+    main()
