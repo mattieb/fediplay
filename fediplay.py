@@ -1,3 +1,4 @@
+from os import umask
 from subprocess import run
 from threading import Thread, Lock
 
@@ -64,11 +65,15 @@ class StreamListener(mastodon.StreamListener):
             self.queue.add(links[0])
 
 def register(api_base_url):
+    old_umask = umask(0o77)
     Mastodon.create_app('fediplay', api_base_url=api_base_url, to_file='clientcred.secret')
+    umask(old_umask)
 
 def login(api_base_url, email, password):
     client = Mastodon(client_id='clientcred.secret', api_base_url=api_base_url)
+    old_umask = umask(0o77)
     client.log_in(email, password, to_file='usercred.secret')
+    umask(old_umask)
 
 def stream(api_base_url):
     client = Mastodon(client_id='clientcred.secret', access_token='usercred.secret', api_base_url=api_base_url)
