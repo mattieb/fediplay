@@ -1,4 +1,4 @@
-from os import umask
+from os import environ, umask
 from subprocess import run
 from threading import Thread, Lock
 
@@ -46,9 +46,10 @@ class Getter(object):
 
     def get(self, url):
         options = {
-                'format': 'mp3/mp4',
-                'progress_hooks': [self._progress_hook]
-                }
+            'format': 'mp3/mp4',
+            'nocheckcertificate': 'FEDIPLAY_NO_CHECK_CERTIFICATE' in environ,
+            'progress_hooks': [self._progress_hook]
+        }
         with YoutubeDL(options) as downloader:
             downloader.download([url])
 
@@ -98,7 +99,7 @@ def extract_links(toot):
 
 def main():
     from getpass import getpass
-    from os import environ, path
+    from os import path
     from sys import exit
 
     api_base_url = environ.get('FEDIPLAY_API_BASE_URL')
