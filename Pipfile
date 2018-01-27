@@ -16,3 +16,4 @@ youtube-dl = "==2017.11.26"
 [dev-packages]
 
 "e1839a8" = {path = ".", editable = true}
+pytest = "*"

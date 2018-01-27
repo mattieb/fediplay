@@ -85,8 +85,8 @@ def stream(api_base_url):
 def extract_tags(toot):
     return [tag['name'] for tag in toot['tags']]
 
-def has_external_link_class(class_string):
-    classes = class_string.split(' ')
+def link_is_internal(link):
+    classes = link.attrib.get('class', '').split(' ')
     if classes:
         return 'mention' in classes
 
@@ -95,7 +95,7 @@ def has_external_link_class(class_string):
 def extract_links(toot):
     html = HTML(toot['content'])
     all_links = html.cssselect('a')
-    return [link.attrib['href'] for link in all_links if not has_external_link_class(link.attrib.get('class', ''))]
+    return [link.attrib['href'] for link in all_links if not link_is_internal(link)]
 
 def main():
     from getpass import getpass
