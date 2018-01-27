@@ -1,5 +1,7 @@
+*.egg-info
 *.mp3
 *.mp4
 *.pyc
 *.secret
+.vscode
 __pycache__
