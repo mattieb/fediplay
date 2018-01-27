@@ -1,3 +1,5 @@
+from os import environ
+
 import fediplay
 
 def test_extract_links():
@@ -6,3 +8,13 @@ def test_extract_links():
     }
     urls = fediplay.extract_links(toot)
     assert urls == ['https://www.youtube.com/watch?v=eTLTXDHrgtw']
+
+def test_build_play_command_default():
+    environ.pop('FEDIPLAY_PLAY_COMMAND')
+    play_command = fediplay.build_play_command('Awesome Music.mp3')
+    assert play_command == 'ffplay -v 0 -nostats -hide_banner -autoexit -nodisp \'Awesome Music.mp3\''
+
+def test_build_play_command_specified():
+    environ.update(FEDIPLAY_PLAY_COMMAND='afplay {filename}')
+    play_command = fediplay.build_play_command('Awesome Music.mp3')
+    assert play_command == 'afplay \'Awesome Music.mp3\''

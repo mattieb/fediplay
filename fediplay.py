@@ -1,4 +1,5 @@
 from os import environ, umask
+import shlex
 from subprocess import run
 from threading import Thread, Lock
 
@@ -26,7 +27,9 @@ class Queue(object):
 
         def run_thread(filename, cb_complete):
             print('==> Playing', filename)
-            run(['ffplay', '-v', '0', '-nostats', '-hide_banner', '-autoexit', '-nodisp', filename])
+            play_command = build_play_command(filename)
+            print('[executing]', play_command)
+            run(play_command, shell=True)
             print('==> Playback complete')
             cb_complete()
 
@@ -96,6 +99,14 @@ def extract_links(toot):
     html = HTML(toot['content'])
     all_links = html.cssselect('a')
     return [link.attrib['href'] for link in all_links if not link_is_internal(link)]
+
+def build_play_command(filename):
+    escaped_filename = shlex.quote(filename)
+    template = environ.get(
+        'FEDIPLAY_PLAY_COMMAND',
+        'ffplay -v 0 -nostats -hide_banner -autoexit -nodisp {filename}'
+    )
+    return template.format(filename=escaped_filename)
 
 def main():
     from getpass import getpass
