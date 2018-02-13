@@ -79,6 +79,12 @@ def login(api_base_url, email, password):
     client.log_in(email, password, to_file='usercred.secret')
     umask(old_umask)
 
+def login_with_code(api_base_url, grant_code):
+    client = Mastodon(client_id='clientcred.secret', api_base_url=api_base_url)
+    old_umask = umask(0o77)
+    client.log_in(code=grant_code, to_file='usercred.secret')
+    umask(old_umask)
+
 def stream(api_base_url):
     client = Mastodon(client_id='clientcred.secret', access_token='usercred.secret', api_base_url=api_base_url)
     listener = StreamListener()
@@ -111,7 +117,7 @@ def build_play_command(filename):
 def main():
     from getpass import getpass
     from os import path
-    from sys import exit
+    from sys import exit, argv
 
     api_base_url = environ.get('FEDIPLAY_API_BASE_URL')
     if not api_base_url:
@@ -124,9 +130,16 @@ def main():
 
     if not path.exists('usercred.secret'):
         print('==> No usercred.secret; logging in')
-        email = input('Email: ')
-        password = getpass('Password: ')
-        login(api_base_url, email, password)
+        if '-b' in argv or '--browser' in argv:
+            client = Mastodon(client_id='clientcred.secret', api_base_url=api_base_url)
+            print("Open this page in your browser and follow the instructions to get the code you need, then paste it here")
+            print(client.auth_request_url())
+            grant_code = getpass('Code? ')
+            login_with_code(api_base_url, grant_code)
+        else:
+            email = input('Email: ')
+            password = getpass('Password: ')
+            login(api_base_url, email, password)
 
     stream(api_base_url)
 
