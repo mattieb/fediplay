@@ -7,6 +7,7 @@ from lxml.etree import HTML
 import mastodon
 Mastodon = mastodon.Mastodon
 from youtube_dl import YoutubeDL
+from youtube_dl.utils import DownloadError
 
 class Queue(object):
     def __init__(self):
@@ -66,7 +67,13 @@ class StreamListener(mastodon.StreamListener):
         tags = extract_tags(status)
         if 'fediplay' in tags:
             links = extract_links(status)
-            self.queue.add(links[0])
+            for link in links:
+                try:
+                    print('==> Trying', link)
+                    self.queue.add(link)
+                    return
+                except DownloadError:
+                    pass
 
 def register(api_base_url):
     old_umask = umask(0o77)
