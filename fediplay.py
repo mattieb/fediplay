@@ -73,10 +73,9 @@ def register(api_base_url):
     Mastodon.create_app('fediplay', api_base_url=api_base_url, to_file='clientcred.secret')
     umask(old_umask)
 
-def login(api_base_url, email, password):
-    client = Mastodon(client_id='clientcred.secret', api_base_url=api_base_url)
+def login(client, grant_code):
     old_umask = umask(0o77)
-    client.log_in(email, password, to_file='usercred.secret')
+    client.log_in(code=grant_code, to_file='usercred.secret')
     umask(old_umask)
 
 def stream(api_base_url):
@@ -124,9 +123,11 @@ def main():
 
     if not path.exists('usercred.secret'):
         print('==> No usercred.secret; logging in')
-        email = input('Email: ')
-        password = getpass('Password: ')
-        login(api_base_url, email, password)
+        client = Mastodon(client_id='clientcred.secret', api_base_url=api_base_url)
+        print("Open this page in your browser and follow the instructions to get the code you need, then paste it here")
+        print(client.auth_request_url())
+        grant_code = input('Code? ')
+        login(client, grant_code)
 
     stream(api_base_url)
 
