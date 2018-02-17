@@ -127,7 +127,7 @@ def main():
         client = Mastodon(client_id='clientcred.secret', api_base_url=api_base_url)
         print("Open this page in your browser and follow the instructions to get the code you need, then paste it here")
         print(client.auth_request_url())
-        grant_code = getpass('Code? ')
+        grant_code = input('Code? ')
         login(api_base_url, grant_code)
 
     stream(api_base_url)
