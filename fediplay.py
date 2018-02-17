@@ -111,7 +111,7 @@ def build_play_command(filename):
 def main():
     from getpass import getpass
     from os import path
-    from sys import exit, argv
+    from sys import exit
 
     api_base_url = environ.get('FEDIPLAY_API_BASE_URL')
     if not api_base_url:
