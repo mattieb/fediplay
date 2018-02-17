@@ -66,7 +66,8 @@ class StreamListener(mastodon.StreamListener):
         tags = extract_tags(status)
         if 'fediplay' in tags:
             links = extract_links(status)
-            self.queue.add(links[0])
+            if links:
+                self.queue.add(links[0])
 
 def register(api_base_url):
     old_umask = umask(0o77)
