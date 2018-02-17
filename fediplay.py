@@ -17,11 +17,11 @@ class Queue(object):
 
     def add(self, url):
         filename = Getter().get(url)
-        
-        with self.lock:
-            self.queue.append(filename)
-            if not self.playing:
-                self._play(self.queue.pop(0), self._play_finished)
+        if filename!="":
+            with self.lock:
+                self.queue.append(filename)
+                if not self.playing:
+                    self._play(self.queue.pop(0), self._play_finished)
 
     def _play(self, filename, cb_complete):
         self.playing = True
@@ -54,9 +54,12 @@ class Getter(object):
             'nocheckcertificate': 'FEDIPLAY_NO_CHECK_CERTIFICATE' in environ,
             'progress_hooks': [self._progress_hook]
         }
-        with YoutubeDL(options) as downloader:
-            downloader.download([url])
-
+        try:
+            with YoutubeDL(options) as downloader:
+                downloader.download([url])
+        except Exception:
+            print("YoutubeDL couldn't download "+url+" for you. That might not be a valid link or you might be having connection issues.")
+            self.filename=""
         return self.filename
 
 class StreamListener(mastodon.StreamListener):
