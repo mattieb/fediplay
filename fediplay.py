@@ -73,8 +73,7 @@ def register(api_base_url):
     Mastodon.create_app('fediplay', api_base_url=api_base_url, to_file='clientcred.secret')
     umask(old_umask)
 
-def login(api_base_url, grant_code):
-    client = Mastodon(client_id='clientcred.secret', api_base_url=api_base_url)
+def login(client, grant_code):
     old_umask = umask(0o77)
     client.log_in(code=grant_code, to_file='usercred.secret')
     umask(old_umask)
@@ -128,7 +127,7 @@ def main():
         print("Open this page in your browser and follow the instructions to get the code you need, then paste it here")
         print(client.auth_request_url())
         grant_code = input('Code? ')
-        login(api_base_url, grant_code)
+        login(client, grant_code)
 
     stream(api_base_url)
 
