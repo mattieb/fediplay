@@ -73,13 +73,7 @@ def register(api_base_url):
     Mastodon.create_app('fediplay', api_base_url=api_base_url, to_file='clientcred.secret')
     umask(old_umask)
 
-def login(api_base_url, email, password):
-    client = Mastodon(client_id='clientcred.secret', api_base_url=api_base_url)
-    old_umask = umask(0o77)
-    client.log_in(email, password, to_file='usercred.secret')
-    umask(old_umask)
-
-def login_with_code(api_base_url, grant_code):
+def login(api_base_url, grant_code):
     client = Mastodon(client_id='clientcred.secret', api_base_url=api_base_url)
     old_umask = umask(0o77)
     client.log_in(code=grant_code, to_file='usercred.secret')
@@ -130,16 +124,11 @@ def main():
 
     if not path.exists('usercred.secret'):
         print('==> No usercred.secret; logging in')
-        if '-b' in argv or '--browser' in argv:
-            client = Mastodon(client_id='clientcred.secret', api_base_url=api_base_url)
-            print("Open this page in your browser and follow the instructions to get the code you need, then paste it here")
-            print(client.auth_request_url())
-            grant_code = getpass('Code? ')
-            login_with_code(api_base_url, grant_code)
-        else:
-            email = input('Email: ')
-            password = getpass('Password: ')
-            login(api_base_url, email, password)
+        client = Mastodon(client_id='clientcred.secret', api_base_url=api_base_url)
+        print("Open this page in your browser and follow the instructions to get the code you need, then paste it here")
+        print(client.auth_request_url())
+        grant_code = getpass('Code? ')
+        login(api_base_url, grant_code)
 
     stream(api_base_url)
 
