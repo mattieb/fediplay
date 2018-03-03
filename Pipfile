@@ -7,13 +7,18 @@ name = "pypi"
 
 [packages]
 
-cssselect = "==1.0.1"
-lxml = "==4.1.1"
+cssselect = "*"
+lxml = "*"
 "mastodon.py" = "*"
-youtube-dl = "==2017.11.26"
+youtube-dl = "*"
 
 
 [dev-packages]
 
 "e1839a8" = {path = ".", editable = true}
 pytest = "*"
+
+
+[requires]
+
+python_version = "3.6"

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "971f24d8efade8b46ac288d607d6200a9ecab3a67a81b3f717d38baf720be05d"
+            "sha256": "419607891ddd2c5415c6ff0be4e972d0c2269c9df3fe14fea431a8930da3f692"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -17,7 +17,9 @@
             "sys_platform": "darwin"
         },
         "pipfile-spec": 6,
-        "requires": {},
+        "requires": {
+            "python_version": "3.6"
+        },
         "sources": [
             {
                 "name": "pypi",
@@ -43,10 +45,10 @@
         },
         "cssselect": {
             "hashes": [
-                "sha256:4f5f799a1d3182b04814007e9e7fc6c362f4489c7420d6b348cc901ece07ced9",
-                "sha256:73db1c054b9348409e2862fc6c0dde5c4e4fbe4da64c5c5a9e05fbea45744077"
+                "sha256:3b5103e8789da9e936a68d993b70df732d06b8bb9a337a05ed4eb52c17ef7206",
+                "sha256:066d8bc5229af09617e24b3ca4d52f1f9092d9e061931f4184cd572885c23204"
             ],
-            "version": "==1.0.1"
+            "version": "==1.0.3"
         },
         "decorator": {
             "hashes": [
@@ -146,10 +148,10 @@
         },
         "youtube-dl": {
             "hashes": [
-                "sha256:ba5a13abe7a91250ab602616a84841792ba7f92fec5e6a2c02b9f784e6a97d84",
-                "sha256:fc8a5427ff5cb0672b0a081d3e25d0c7e239640a56260b3771bdb43d4fc81511"
+                "sha256:5f61ed33df754784cfd5b3c1f5b64f44d398123cf887245cb8921d7f531b82c0",
+                "sha256:4a789f65b931e421fd24513fd5355310fbba787985a0465e0f9de75ec41e59b8"
             ],
-            "version": "==2017.11.26"
+            "version": "==2018.3.3"
         }
     },
     "develop": {
@@ -254,10 +256,10 @@
         },
         "pytest": {
             "hashes": [
-                "sha256:95fa025cd6deb5d937e04e368a00552332b58cae23f63b76c8c540ff1733ab6d",
-                "sha256:6074ea3b9c999bd6d0df5fa9d12dd95ccd23550df2a582f5f5b848331d2e82ca"
+                "sha256:8970e25181e15ab14ae895599a0a0e0ade7d1f1c4c8ca1072ce16f25526a184d",
+                "sha256:9ddcb879c8cc859d2540204b5399011f842e5e8823674bf429f70ada281b3cc6"
             ],
-            "version": "==3.4.0"
+            "version": "==3.4.1"
         },
         "python-dateutil": {
             "hashes": [
@@ -303,10 +305,10 @@
         },
         "youtube-dl": {
             "hashes": [
-                "sha256:7f05d5f06b36fc816dfe0bb6ad2bb3aa1b2a508ea3ca1c4a0417750dbf6ff665",
-                "sha256:80da352d7da4cff7e591a8ab70262fceceaf561b86ec72c0dc86891b31e07090"
+                "sha256:5f61ed33df754784cfd5b3c1f5b64f44d398123cf887245cb8921d7f531b82c0",
+                "sha256:4a789f65b931e421fd24513fd5355310fbba787985a0465e0f9de75ec41e59b8"
             ],
-            "version": "==2018.2.11"
+            "version": "==2018.3.3"
         }
     }
 }
