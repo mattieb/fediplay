@@ -4,7 +4,11 @@ A Mastodon client that automatically plays your friends' music as they toot link
 
 ## Getting started
 
-You'll need `ffplay` from [FFmpeg](https://ffmpeg.org/) to actually play music. On macOS, `ffplay` is part of the Homebrew ffmpeg package, but you need to build it with `brew install ffmpeg --with-sdl2`.
+fediplay comes configured to use `ffplay` from [FFmpeg](https://ffmpeg.org/) to actually play music.
+
+-   On macOS, `ffplay` is part of the [Homebrew](https://brew.sh/) `ffmpeg` package, but you need to build it with `brew install ffmpeg --with-sdl2`.
+
+-   On Windows, `ffplay` is part of the [Scoop](http://scoop.sh/) `ffmpeg` package.
 
 Edit `.env` and set `FEDIPLAY_API_BASE_URL` to your Mastodon instance.
 
