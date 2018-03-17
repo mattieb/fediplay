@@ -12,7 +12,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'fediplay = fediplay:main'
+            'fediplay = fediplay.main:main'
         ]
     }
 )

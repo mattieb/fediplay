@@ -1,0 +1,83 @@
+'''The play queue.'''
+
+from os import environ
+import shlex
+from subprocess import run
+from threading import Thread, Lock
+
+from youtube_dl import YoutubeDL
+
+class Queue(object):
+    '''The play queue.'''
+
+    # pylint: disable=too-few-public-methods
+
+    def __init__(self):
+        self.lock = Lock()
+        self.playing = False
+        self.queue = []
+
+    def add(self, url):
+        '''Fetches the url and adds the resulting audio to the play queue.'''
+
+        filename = Getter().get(url)
+
+        with self.lock:
+            self.queue.append(filename)
+            if not self.playing:
+                self._play(self.queue.pop(0), self._play_finished)
+
+    def _play(self, filename, cb_complete):
+        self.playing = True
+
+        def _run_thread(filename, cb_complete):
+            print('==> Playing', filename)
+            play_command = build_play_command(filename)
+            print('[executing]', play_command)
+            run(play_command, shell=True)
+            print('==> Playback complete')
+            cb_complete()
+
+        thread = Thread(target=_run_thread, args=(filename, cb_complete))
+        thread.start()
+
+    def _play_finished(self):
+        with self.lock:
+            self.playing = False
+            if self.queue:
+                self._play(self.queue.pop(0), self._play_finished)
+
+class Getter(object):
+    '''Fetches music from a url.'''
+
+    # pylint: disable=too-few-public-methods
+
+    def __init__(self):
+        self.filename = None
+
+    def _progress_hook(self, progress):
+        if progress['status'] == 'finished':
+            self.filename = progress['filename']
+
+    def get(self, url):
+        '''Fetches music from the given url.'''
+
+        options = {
+            'format': 'mp3/mp4',
+            'nocheckcertificate': 'FEDIPLAY_NO_CHECK_CERTIFICATE' in environ,
+            'progress_hooks': [self._progress_hook]
+        }
+        with YoutubeDL(options) as downloader:
+            downloader.download([url])
+
+        return self.filename
+
+def build_play_command(filename):
+    '''Builds a play command for the given filename.'''
+
+    escaped_filename = shlex.quote(filename)
+    template = environ.get(
+        'FEDIPLAY_PLAY_COMMAND',
+        'ffplay -v 0 -nostats -hide_banner -autoexit -nodisp {filename}'
+    )
+    return template.format(filename=escaped_filename)
