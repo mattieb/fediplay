@@ -4,5 +4,6 @@
 *.pyc
 *.secret
 .cache
+.pytest_cache
 .vscode
 __pycache__
