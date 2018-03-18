@@ -1,16 +1,17 @@
 '''Entry point for command-line interface.'''
 
-from os import path, environ
+from os import path
 import sys
 
 from mastodon import Mastodon
 
+import fediplay.env as env
 from fediplay.mastodon import stream, register, login
 
 def main():
     '''Run fediplay command-line interface.'''
 
-    api_base_url = environ.get('FEDIPLAY_API_BASE_URL')
+    api_base_url = env.api_base_url()
     if not api_base_url:
         print('FEDIPLAY_API_BASE_URL environment variable not set')
         sys.exit(1)

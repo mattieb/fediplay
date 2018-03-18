@@ -1,11 +1,12 @@
 '''The play queue.'''
 
-from os import environ
 import shlex
 from subprocess import run
 from threading import Thread, Lock
 
 from youtube_dl import YoutubeDL
+
+import fediplay.env as env
 
 class Queue(object):
     '''The play queue.'''
@@ -64,7 +65,7 @@ class Getter(object):
 
         options = {
             'format': 'mp3/mp4',
-            'nocheckcertificate': 'FEDIPLAY_NO_CHECK_CERTIFICATE' in environ,
+            'nocheckcertificate': env.no_check_certificate(),
             'progress_hooks': [self._progress_hook]
         }
         with YoutubeDL(options) as downloader:
@@ -76,8 +77,5 @@ def build_play_command(filename):
     '''Builds a play command for the given filename.'''
 
     escaped_filename = shlex.quote(filename)
-    template = environ.get(
-        'FEDIPLAY_PLAY_COMMAND',
-        'ffplay -v 0 -nostats -hide_banner -autoexit -nodisp {filename}'
-    )
+    template = env.play_command()
     return template.format(filename=escaped_filename)
