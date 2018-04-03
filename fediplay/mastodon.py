@@ -49,7 +49,7 @@ def login(client, grant_code):
 def stream(api_base_url):
     '''Stream statuses and add them to a queue.'''
 
-    client = Mastodon(client_id='clientcred.secret', 
+    client = Mastodon(client_id='clientcred.secret',
                       access_token='usercred.secret',
                       api_base_url=api_base_url)
     listener = StreamListener(Queue())

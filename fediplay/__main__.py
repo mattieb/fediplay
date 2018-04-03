@@ -3,4 +3,3 @@
 from fediplay.cli import cli
 
 cli()
-

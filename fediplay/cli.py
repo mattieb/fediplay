@@ -6,10 +6,11 @@ import sys
 import click
 from mastodon import Mastodon
 
-import fediplay.env as env
 import fediplay.mastodon as mastodon
 
 def api_base_url_from_instance(instance):
+    '''Create an API base url from an instance name.'''
+
     return 'https://' + instance
 
 @click.group()
