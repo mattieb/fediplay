@@ -33,20 +33,24 @@ def register(api_base_url):
     '''Register fediplay to a Mastodon server and save the client credentials.'''
 
     old_umask = umask(0o77)
-    Mastodon.create_app('fediplay', api_base_url=api_base_url, to_file='clientcred.secret')
+    Mastodon.create_app('fediplay',
+                        scopes=['read'],
+                        api_base_url=api_base_url,
+                        to_file='clientcred.secret')
     umask(old_umask)
 
 def login(client, grant_code):
     '''Log in to a Mastodon server and save the user credentials.'''
 
     old_umask = umask(0o77)
-    client.log_in(code=grant_code, to_file='usercred.secret')
+    client.log_in(code=grant_code, scopes=['read'], to_file='usercred.secret')
     umask(old_umask)
 
 def stream(api_base_url):
     '''Stream statuses and add them to a queue.'''
 
-    client = Mastodon(client_id='clientcred.secret', access_token='usercred.secret',
+    client = Mastodon(client_id='clientcred.secret', 
+                      access_token='usercred.secret',
                       api_base_url=api_base_url)
     listener = StreamListener(Queue())
     click.echo('==> Streaming from {}'.format(api_base_url))

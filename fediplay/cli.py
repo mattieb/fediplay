@@ -51,7 +51,7 @@ def login(instance):
     click.echo('Open this page in your browser and follow the instructions.')
     click.echo('Paste the code here.')
     click.echo('')
-    click.echo(client.auth_request_url())
+    click.echo(client.auth_request_url(scopes=['read']))
     click.echo('')
 
     grant_code = input('Code: ')
