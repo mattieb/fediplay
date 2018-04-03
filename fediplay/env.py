@@ -4,9 +4,6 @@ from os import getenv
 
 from dotenv import load_dotenv, find_dotenv
 
-def api_base_url():
-    return getenv('FEDIPLAY_API_BASE_URL')
-
 def no_check_certificate():
     return bool(getenv('FEDIPLAY_NO_CHECK_CERTIFICATE'))
 

@@ -2,6 +2,7 @@
 
 from os import umask
 
+import click
 from lxml.etree import HTML # pylint: disable=no-name-in-module
 import mastodon
 from youtube_dl.utils import DownloadError
@@ -22,7 +23,7 @@ class StreamListener(mastodon.StreamListener):
             links = extract_links(status)
             for link in links:
                 try:
-                    print('==> Trying', link)
+                    click.echo('==> Trying {}'.format(link))
                     self.queue.add(link)
                     return
                 except DownloadError:
@@ -48,7 +49,7 @@ def stream(api_base_url):
     client = Mastodon(client_id='clientcred.secret', access_token='usercred.secret',
                       api_base_url=api_base_url)
     listener = StreamListener(Queue())
-    print('==> Streaming from', api_base_url)
+    click.echo('==> Streaming from {}'.format(api_base_url))
     client.stream_user(listener)
 
 def extract_tags(toot):

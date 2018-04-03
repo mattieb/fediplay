@@ -9,9 +9,10 @@ name = "pypi"
 
 cssselect = "*"
 lxml = "*"
-"Mastodon.py" = "*"
-youtube_dl = "*"
+"mastodon.py" = "*"
+youtube-dl = "*"
 python-dotenv = "*"
+click = "*"
 
 
 [dev-packages]

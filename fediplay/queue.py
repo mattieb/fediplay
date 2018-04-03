@@ -4,6 +4,7 @@ import shlex
 from subprocess import run
 from threading import Thread, Lock
 
+import click
 from youtube_dl import YoutubeDL
 
 import fediplay.env as env
@@ -32,11 +33,10 @@ class Queue(object):
         self.playing = True
 
         def _run_thread(filename, cb_complete):
-            print('==> Playing', filename)
             play_command = build_play_command(filename)
-            print('[executing]', play_command)
+            click.echo('==> Playing {} with {}'.format(filename, play_command))
             run(play_command, shell=True)
-            print('==> Playback complete')
+            click.echo('==> Playback complete')
             cb_complete()
 
         thread = Thread(target=_run_thread, args=(filename, cb_complete))
