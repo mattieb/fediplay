@@ -21,10 +21,10 @@ class Queue(object):
     def add(self, url):
         '''Fetches the url and adds the resulting audio to the play queue.'''
 
-        filename = Getter().get(url)
+        filenames = Getter().get(url)
 
         with self.lock:
-            self.queue.append(filename)
+            self.queue.extend(filenames)
             if not self.playing:
                 self._play(self.queue.pop(0), self._play_finished)
 
@@ -54,11 +54,11 @@ class Getter(object):
     # pylint: disable=too-few-public-methods
 
     def __init__(self):
-        self.filename = None
+        self.filenames = []
 
     def _progress_hook(self, progress):
-        if progress['status'] == 'finished':
-            self.filename = progress['filename']
+        if progress['status'] == 'downloading' and progress['filename'] not in self.filenames:
+            self.filenames.append(progress['filename'])
 
     def get(self, url):
         '''Fetches music from the given url.'''
@@ -71,7 +71,7 @@ class Getter(object):
         with YoutubeDL(options) as downloader:
             downloader.download([url])
 
-        return self.filename
+        return self.filenames
 
 def build_play_command(filename):
     '''Builds a play command for the given filename.'''
