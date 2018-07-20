@@ -39,10 +39,7 @@ def register(instance, clientcred):
     '''Register fediplay to a Mastodon server and save the client credentials.'''
 
     saved_umask = umask(0o77)
-    Mastodon.create_app('fediplay',
-                        scopes=['read'],
-                        api_base_url=api_base_url(instance),
-                        to_file=clientcred)
+    Mastodon.create_app('fediplay', scopes=['read'], api_base_url=api_base_url(instance), to_file=clientcred)
     umask(saved_umask)
 
 def build_client(instance, clientcred, usercred=None):
@@ -65,10 +62,9 @@ def login(client, grant_code, usercred):
 def stream(instance, clientcred, usercred):
     '''Stream statuses and add them to a queue.'''
 
-    url = api_base_url(instance)
-    client = Mastodon(client_id=clientcred, access_token=usercred, api_base_url=url)
+    client = build_client(instance, clientcred, usercred)
     listener = StreamListener(Queue())
-    click.echo('==> Streaming from {}'.format(url))
+    click.echo('==> Streaming from {}'.format(instance))
     client.stream_user(listener)
 
 def extract_tags(toot):

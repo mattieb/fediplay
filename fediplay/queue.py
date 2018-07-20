@@ -9,6 +9,7 @@ from youtube_dl import YoutubeDL
 
 import fediplay.env as env
 
+
 class Queue(object):
     '''The play queue.'''
 

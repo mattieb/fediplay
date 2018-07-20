@@ -1,12 +1,9 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [packages]
-
 cssselect = "*"
 lxml = "*"
 "mastodon.py" = "*"
@@ -14,14 +11,11 @@ youtube-dl = "*"
 python-dotenv = "*"
 click = "*"
 "e1839a8" = {path = ".", editable = true}
-
+appdirs = "*"
 
 [dev-packages]
-
 pytest = "*"
 pylint = "*"
 
-
 [requires]
-
 python_version = "3.6"

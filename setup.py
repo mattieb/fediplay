@@ -5,6 +5,7 @@ setup(
     version='2.0',
     py_modules=['fediplay'],
     install_requires=[
+        'appdirs',
         'click',
         'cssselect',
         'lxml',
