@@ -8,10 +8,16 @@ from mastodon import Mastodon
 
 import fediplay.mastodon as mastodon
 
-def api_base_url_from_instance(instance):
-    '''Create an API base url from an instance name.'''
 
-    return 'https://' + instance
+def build_usercred_filename(instance):
+    '''Generate a usercred filename from an instance name.'''
+
+    return instance + '.usercred.secret'
+
+def build_clientcred_filename(instance):
+    '''Generate a clientcred filename from an instance name.'''
+
+    return instance + '.clientcred.secret'
 
 @click.group()
 def cli():
@@ -24,53 +30,55 @@ def cli():
 def register(instance):
     '''Register fediplay to the instance.'''
 
-    api_base_url = api_base_url_from_instance(instance)
+    clientcred = build_clientcred_filename(instance)
 
-    if path.exists('clientcred.secret'):
-        click.echo('clientcred.secret already exists')
+    if path.exists(clientcred):
+        click.echo(clientcred + ' already exists')
         sys.exit(1)
 
-    mastodon.register(api_base_url)
+    mastodon.register(instance, clientcred)
 
 @cli.command()
 @click.argument('instance')
 def login(instance):
     '''Log in to the instance.'''
 
-    api_base_url = api_base_url_from_instance(instance)
+    usercred = build_usercred_filename(instance)
+    clientcred = build_clientcred_filename(instance)
 
-    if path.exists('usercred.secret'):
-        click.echo('usercred.secret already exists')
+    if path.exists(usercred):
+        click.echo(usercred + ' already exists')
         sys.exit(1)
 
-    if not path.exists('clientcred.secret'):
-        click.echo('clientcred.secret does not exist; try `fediplay register`')
+    if not path.exists(clientcred):
+        click.echo(clientcred + ' does not exist; try `fediplay register`')
         sys.exit(1)
 
-    client = Mastodon(client_id='clientcred.secret', api_base_url=api_base_url)
+    client = mastodon.build_client(instance, clientcred)
 
     click.echo('Open this page in your browser and follow the instructions.')
     click.echo('Paste the code here.')
     click.echo('')
-    click.echo(client.auth_request_url(scopes=['read']))
+    click.echo(mastodon.get_auth_request_url(client))
     click.echo('')
 
     grant_code = input('Code: ')
-    mastodon.login(client, grant_code)
+    mastodon.login(client, grant_code, usercred)
 
 @cli.command()
 @click.argument('instance')
 def stream(instance):
     '''Stream music from the instance.'''
 
-    api_base_url = api_base_url_from_instance(instance)
+    clientcred = build_clientcred_filename(instance)
+    usercred = build_usercred_filename(instance)
 
-    if not path.exists('clientcred.secret'):
-        click.echo('clientcred.secret does not exist; try `fediplay register`')
+    if not path.exists(clientcred):
+        click.echo(clientcred + ' does not exist; try `fediplay register`')
         sys.exit(1)
 
-    if not path.exists('usercred.secret'):
-        click.echo('usercred.secret does not exist; try `fediplay login`')
+    if not path.exists(usercred):
+        click.echo(usercred + ' does not exist; try `fediplay login`')
         sys.exit(1)
 
-    mastodon.stream(api_base_url)
+    mastodon.stream(instance, clientcred, usercred)

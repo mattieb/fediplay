@@ -4,6 +4,7 @@ from os import getenv
 
 from dotenv import load_dotenv, find_dotenv
 
+
 def no_check_certificate():
     '''Returns whether fediplay should check TLS certificates.'''
 
