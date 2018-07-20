@@ -1,27 +1,31 @@
 '''The play queue.'''
 
+from os import path
 import shlex
 from subprocess import run
 from threading import Thread, Lock
 
-from youtube_dl import YoutubeDL
+import click
+from youtube_dl import YoutubeDL, utils
 
 import fediplay.env as env
+
 
 class Queue(object):
     '''The play queue.'''
 
     # pylint: disable=too-few-public-methods
 
-    def __init__(self):
+    def __init__(self, cache_dir):
         self.lock = Lock()
         self.playing = False
         self.queue = []
+        self.cache_dir = cache_dir
 
     def add(self, url):
         '''Fetches the url and adds the resulting audio to the play queue.'''
 
-        filenames = Getter().get(url)
+        filenames = Getter(self.cache_dir).get(url)
 
         with self.lock:
             self.queue.extend(filenames)
@@ -32,11 +36,10 @@ class Queue(object):
         self.playing = True
 
         def _run_thread(filename, cb_complete):
-            print('==> Playing', filename)
             play_command = build_play_command(filename)
-            print('[executing]', play_command)
+            click.echo('==> Playing {} with {}'.format(filename, play_command))
             run(play_command, shell=True)
-            print('==> Playback complete')
+            click.echo('==> Playback complete')
             cb_complete()
 
         thread = Thread(target=_run_thread, args=(filename, cb_complete))
@@ -53,8 +56,10 @@ class Getter(object):
 
     # pylint: disable=too-few-public-methods
 
-    def __init__(self):
+    def __init__(self, cache_dir):
+        self.filename = None
         self.filenames = []
+        self.cache_dir = cache_dir
 
     def _progress_hook(self, progress):
         if progress['status'] == 'downloading' and progress['filename'] not in self.filenames:
@@ -66,6 +71,7 @@ class Getter(object):
         options = {
             'format': 'mp3/mp4',
             'nocheckcertificate': env.no_check_certificate(),
+            'outtmpl': path.join(self.cache_dir, utils.DEFAULT_OUTTMPL),
             'progress_hooks': [self._progress_hook]
         }
         with YoutubeDL(options) as downloader:

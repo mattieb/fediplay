@@ -2,6 +2,7 @@
 
 from os import umask
 
+import click
 from lxml.etree import HTML # pylint: disable=no-name-in-module
 import mastodon
 from youtube_dl.utils import DownloadError
@@ -9,6 +10,12 @@ from youtube_dl.utils import DownloadError
 from fediplay.queue import Queue
 
 Mastodon = mastodon.Mastodon
+
+
+def api_base_url(instance):
+    '''Create an API base url from an instance name.'''
+
+    return 'https://' + instance
 
 class StreamListener(mastodon.StreamListener):
     '''Listens to a Mastodon timeline and adds links the given Queue.'''
@@ -22,33 +29,42 @@ class StreamListener(mastodon.StreamListener):
             links = extract_links(status)
             for link in links:
                 try:
-                    print('==> Trying', link)
+                    click.echo('==> Trying {}'.format(link))
                     self.queue.add(link)
                     return
                 except DownloadError:
                     pass
 
-def register(api_base_url):
+def register(instance, clientcred):
     '''Register fediplay to a Mastodon server and save the client credentials.'''
 
-    old_umask = umask(0o77)
-    Mastodon.create_app('fediplay', api_base_url=api_base_url, to_file='clientcred.secret')
-    umask(old_umask)
+    saved_umask = umask(0o77)
+    Mastodon.create_app('fediplay', scopes=['read'], api_base_url=api_base_url(instance), to_file=clientcred)
+    umask(saved_umask)
 
-def login(client, grant_code):
+def build_client(instance, clientcred, usercred=None):
+    '''Builds a Mastodon client.'''
+
+    return Mastodon(client_id=clientcred, access_token=usercred, api_base_url=api_base_url(instance))
+
+def get_auth_request_url(client):
+    '''Gets an authorization request URL from a Mastodon instance.'''
+
+    return client.auth_request_url(scopes=['read'])
+
+def login(client, grant_code, usercred):
     '''Log in to a Mastodon server and save the user credentials.'''
 
-    old_umask = umask(0o77)
-    client.log_in(code=grant_code, to_file='usercred.secret')
-    umask(old_umask)
+    saved_umask = umask(0o77)
+    client.log_in(code=grant_code, scopes=['read'], to_file=usercred)
+    umask(saved_umask)
 
-def stream(api_base_url):
+def stream(instance, clientcred, usercred, cache_dir='.'):
     '''Stream statuses and add them to a queue.'''
 
-    client = Mastodon(client_id='clientcred.secret', access_token='usercred.secret',
-                      api_base_url=api_base_url)
-    listener = StreamListener(Queue())
-    print('==> Streaming from', api_base_url)
+    client = build_client(instance, clientcred, usercred)
+    listener = StreamListener(Queue(cache_dir))
+    click.echo('==> Streaming from {}'.format(instance))
     client.stream_user(listener)
 
 def extract_tags(toot):

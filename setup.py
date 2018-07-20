@@ -2,17 +2,20 @@ from setuptools import setup
 
 setup(
     name='fediplay',
-    version='0.1',
+    version='2.0',
     py_modules=['fediplay'],
     install_requires=[
-        'Mastodon.py',
+        'appdirs',
+        'click',
         'cssselect',
         'lxml',
+        'Mastodon.py',
+        'python-dotenv',
         'youtube-dl'
     ],
     entry_points={
         'console_scripts': [
-            'fediplay = fediplay.main:main'
+            'fediplay = fediplay:cli'
         ]
     }
 )
