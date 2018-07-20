@@ -59,11 +59,11 @@ def login(client, grant_code, usercred):
     client.log_in(code=grant_code, scopes=['read'], to_file=usercred)
     umask(saved_umask)
 
-def stream(instance, clientcred, usercred):
+def stream(instance, clientcred, usercred, cache_dir='.'):
     '''Stream statuses and add them to a queue.'''
 
     client = build_client(instance, clientcred, usercred)
-    listener = StreamListener(Queue())
+    listener = StreamListener(Queue(cache_dir))
     click.echo('==> Streaming from {}'.format(instance))
     client.stream_user(listener)
 

@@ -117,4 +117,4 @@ def stream(instance):
     clientcred = ensure_clientcred(instance)
     usercred = ensure_usercred(instance)
 
-    mastodon.stream(instance, clientcred, usercred)
+    mastodon.stream(instance, clientcred, usercred, cache_dir=dirs.user_cache_dir)

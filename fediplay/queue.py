@@ -1,11 +1,12 @@
 '''The play queue.'''
 
+from os import path
 import shlex
 from subprocess import run
 from threading import Thread, Lock
 
 import click
-from youtube_dl import YoutubeDL
+from youtube_dl import YoutubeDL, utils
 
 import fediplay.env as env
 
@@ -15,15 +16,16 @@ class Queue(object):
 
     # pylint: disable=too-few-public-methods
 
-    def __init__(self):
+    def __init__(self, cache_dir):
         self.lock = Lock()
         self.playing = False
         self.queue = []
+        self.cache_dir = cache_dir
 
     def add(self, url):
         '''Fetches the url and adds the resulting audio to the play queue.'''
 
-        filename = Getter().get(url)
+        filename = Getter(self.cache_dir).get(url)
 
         with self.lock:
             self.queue.append(filename)
@@ -54,8 +56,9 @@ class Getter(object):
 
     # pylint: disable=too-few-public-methods
 
-    def __init__(self):
+    def __init__(self, cache_dir):
         self.filename = None
+        self.cache_dir = cache_dir
 
     def _progress_hook(self, progress):
         if progress['status'] == 'finished':
@@ -67,6 +70,7 @@ class Getter(object):
         options = {
             'format': 'mp3/mp4',
             'nocheckcertificate': env.no_check_certificate(),
+            'outtmpl': path.join(self.cache_dir, utils.DEFAULT_OUTTMPL),
             'progress_hooks': [self._progress_hook]
         }
         with YoutubeDL(options) as downloader:
