@@ -4,6 +4,8 @@
 *.pyc
 *.secret
 .cache
+.idea
 .pytest_cache
 .vscode
 __pycache__
+fediplay.iml
