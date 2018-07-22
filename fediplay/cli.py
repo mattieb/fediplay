@@ -67,16 +67,14 @@ def ensure_clientcred(instance):
 
 @click.group()
 def cli():
-    '''Command-line interface group.'''
+    '''A program to play music your friends post on Mastodon.'''
 
     ensure_dirs()
-
-    pass
 
 @cli.command()
 @click.argument('instance')
 def register(instance):
-    '''Register fediplay to the instance.'''
+    '''Register fediplay on your Mastodon instance.'''
 
     clientcred = build_clientcred_filename(instance)
 
@@ -89,7 +87,7 @@ def register(instance):
 @cli.command()
 @click.argument('instance')
 def login(instance):
-    '''Log in to the instance.'''
+    '''Log in to your Mastodon instance.'''
 
     clientcred = ensure_clientcred(instance)
 
@@ -112,7 +110,7 @@ def login(instance):
 @cli.command()
 @click.argument('instance')
 def stream(instance):
-    '''Stream music from the instance.'''
+    '''Stream music from your timeline.'''
 
     clientcred = ensure_clientcred(instance)
     usercred = ensure_usercred(instance)
