@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "add9770cb1b3cd200c03d312f2a977e024c75df453ca2f33094265959e1e7376"
+            "sha256": "823dc15b2e595d044b28df0bb1d28da5da1f2235baa200cf8d36c3eeb988a86d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -133,6 +133,14 @@
             "editable": true,
             "path": "."
         },
+        "entrypoints": {
+            "hashes": [
+                "sha256:10ad569bb245e7e2ba425285b9fa3e8178a0dc92fc53b1e1c553805e15a8825b",
+                "sha256:d2d587dde06f99545fb13a383d2cd336a8ff1f359c5839ce3a64c917d10c029f"
+            ],
+            "markers": "python_version >= '2.7'",
+            "version": "==0.2.3"
+        },
         "http-ece": {
             "hashes": [
                 "sha256:2f31a0640c31a0c2934ab1e37005dd9a559ae854a16304f9b839e062074106cc"
@@ -145,6 +153,22 @@
                 "sha256:684a38a6f903c1d71d6d5fac066b58d7768af4de2b832e426ec79c30daa94a16"
             ],
             "version": "==2.7"
+        },
+        "keyring": {
+            "hashes": [
+                "sha256:6364bb8c233f28538df4928576f4e051229e0451651073ab20b315488da16a58",
+                "sha256:6e01954fd3e404820e1fade262ee661974051551ed08c899ffc5e88bb9df288e"
+            ],
+            "index": "pypi",
+            "version": "==13.2.1"
+        },
+        "keyrings.alt": {
+            "hashes": [
+                "sha256:6a00fa799baf1385cf9620bd01bcc815aa56e6970342a567bcfea0c4d21abe5f",
+                "sha256:b59c86b67b9027a86e841a49efc41025bcc3b1b0308629617b66b7011e52db5a"
+            ],
+            "index": "pypi",
+            "version": "==3.1"
         },
         "lxml": {
             "hashes": [
@@ -238,11 +262,11 @@
         },
         "youtube-dl": {
             "hashes": [
-                "sha256:3300689ccc6cd22b8229e0c9cbb9f2cfcceaa3cef871a8e83c6a456623bb44e5",
-                "sha256:e4f81d38d2c7b8fa6fa069cd0f0096835dcaab91e74a4ca760625b76e0c614b4"
+                "sha256:08d91f0e4dd2d4608a677aa68896b272dcd243a966e161643242203c291b051e",
+                "sha256:cc380b9f2dee75370760fdc8dbfc7ff4eb0b611fa07ab86b80aafc2be5d08a4d"
             ],
             "index": "pypi",
-            "version": "==2018.7.10"
+            "version": "==2018.7.21"
         }
     },
     "develop": {

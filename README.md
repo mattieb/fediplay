@@ -2,13 +2,15 @@
 
 A Mastodon client that automatically plays your friends' music as they toot links to it.
 
-## What's new in 2.0
+## What's new in 2.1
 
-If you've been using fediplay before, the all-new version 2.0 will be a little different!
+If you've been using fediplay before, the all-new version 2.1 will be a little different!
 
 -   You now specify the instance you want to stream from on the command line, instead of setting it in the environment. fediplay has been upgraded with the power of [Click](http://click.pocoo.org/) to give it a more modern command-line interface.
 
--   We use [appdirs](https://github.com/ActiveState/appdirs) to store your credentials in your operating system's user config directory, and downloaded music files in your operating system's user cache directory. If you already have `.secret` files from an earlier version, we'll move and rename them automatically for you.
+-   We use [appdirs](https://pypi.org/project/appdirs/) to keep downloaded music files in your operating system's user cache directory.
+
+-   We use [keyring](https://pypi.org/project/keyring/) to store your client credentials and access token, securely if your operating system supports it. If you already have `.secret` files from an earlier version, we'll migrate them automatically for you.
 
 Be sure to follow all the instructions, including re-running `pipenv install` to update the installed dependencies.
 

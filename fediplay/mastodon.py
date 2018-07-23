@@ -7,6 +7,7 @@ from lxml.etree import HTML # pylint: disable=no-name-in-module
 import mastodon
 from youtube_dl.utils import DownloadError
 
+import fediplay.keyring as keyring
 from fediplay.queue import Queue
 
 Mastodon = mastodon.Mastodon
@@ -35,34 +36,35 @@ class StreamListener(mastodon.StreamListener):
                 except DownloadError:
                     pass
 
-def register(instance, clientcred):
+def register(instance):
     '''Register fediplay to a Mastodon server and save the client credentials.'''
 
-    saved_umask = umask(0o77)
-    Mastodon.create_app('fediplay', scopes=['read'], api_base_url=api_base_url(instance), to_file=clientcred)
-    umask(saved_umask)
+    client_id, client_secret = Mastodon.create_app('fediplay', scopes=['read'], api_base_url=api_base_url(instance))
+    keyring.set_credential(instance, keyring.CREDENTIAL_CLIENT_ID, client_id)
+    keyring.set_credential(instance, keyring.CREDENTIAL_CLIENT_SECRET, client_secret)
 
-def build_client(instance, clientcred, usercred=None):
+def build_client(instance, client_id, client_secret, access_token=None):
     '''Builds a Mastodon client.'''
 
-    return Mastodon(client_id=clientcred, access_token=usercred, api_base_url=api_base_url(instance))
+    return Mastodon(api_base_url=api_base_url(instance),
+                    client_id=client_id, client_secret=client_secret, access_token=access_token)
 
-def get_auth_request_url(client):
+def get_auth_request_url(instance, client_id, client_secret):
     '''Gets an authorization request URL from a Mastodon instance.'''
 
-    return client.auth_request_url(scopes=['read'])
+    return build_client(instance, client_id, client_secret).auth_request_url(scopes=['read'])
 
-def login(client, grant_code, usercred):
+def login(instance, client_id, client_secret, grant_code):
     '''Log in to a Mastodon server and save the user credentials.'''
 
-    saved_umask = umask(0o77)
-    client.log_in(code=grant_code, scopes=['read'], to_file=usercred)
-    umask(saved_umask)
+    client = build_client(instance, client_id, client_secret)
+    access_token = client.log_in(code=grant_code, scopes=['read'])
+    keyring.set_credential(instance, keyring.CREDENTIAL_ACCESS_TOKEN, access_token)
 
-def stream(instance, clientcred, usercred, cache_dir='.'):
+def stream(instance, client_id, client_secret, access_token, cache_dir='.'):
     '''Stream statuses and add them to a queue.'''
 
-    client = build_client(instance, clientcred, usercred)
+    client = build_client(instance, client_id, client_secret, access_token)
     listener = StreamListener(Queue(cache_dir))
     click.echo('==> Streaming from {}'.format(instance))
     client.stream_user(listener)
