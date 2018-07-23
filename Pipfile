@@ -12,6 +12,8 @@ python-dotenv = "*"
 click = "*"
 "e1839a8" = {path = ".", editable = true}
 appdirs = "*"
+keyring = "*"
+"keyrings.alt" = "*"
 
 [dev-packages]
 pytest = "*"

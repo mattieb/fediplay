@@ -1,6 +1,7 @@
 '''Entry point for command-line interface.'''
 
 import os
+path = os.path
 import sys
 
 import appdirs
@@ -8,62 +9,43 @@ import click
 from mastodon import Mastodon
 
 import fediplay.mastodon as mastodon
+import fediplay.keyring as keyring
 
-path = os.path
-
-dirs = appdirs.AppDirs('fediplay', 'zigg')
-
-
-def build_usercred_filename(instance):
-    '''Generate a usercred filename from an instance name.'''
-
-    return path.join(dirs.user_config_dir, instance + '.usercred.secret')
-
-def build_clientcred_filename(instance):
-    '''Generate a clientcred filename from an instance name.'''
-
-    return path.join(dirs.user_config_dir, instance + '.clientcred.secret')
 
 def ensure_dirs():
     '''Make sure the application directories exist.'''
 
-    if not path.exists(dirs.user_config_dir):
-        os.makedirs(dirs.user_config_dir)
+    if not path.exists(keyring.dirs.user_config_dir):
+        os.makedirs(keyring.dirs.user_config_dir)
 
-    if not path.exists(dirs.user_cache_dir):
-        os.makedirs(dirs.user_cache_dir)
+    if not path.exists(keyring.dirs.user_cache_dir):
+        os.makedirs(keyring.dirs.user_cache_dir)
 
-def ensure_usercred(instance):
-    '''Ensure the usercred file exists.'''
+def get_access_token(instance):
+    '''Ensure the user credential exists.'''
 
-    usercred = build_usercred_filename(instance)
+    keyring.migrate_access_token(instance)
 
-    if path.exists(usercred):
-        return usercred
+    if not keyring.has_credential(instance, keyring.CREDENTIAL_ACCESS_TOKEN):
+        click.echo('user credential for {} does not exist; try `fediplay login`'.format(instance))
+        sys.exit(1)
 
-    if path.exists('usercred.secret'):
-        click.echo('==> Migrating usercred.secret to ' + usercred)
-        os.rename('usercred.secret', usercred)
-        return usercred
+    return keyring.get_credential(instance, keyring.CREDENTIAL_ACCESS_TOKEN)
 
-    click.echo(usercred + ' does not exist; try `fediplay login`')
-    sys.exit(1)
+def get_client_credentials(instance):
+    '''Ensure the client credentials exist.'''
 
-def ensure_clientcred(instance):
-    '''Ensure the clientcred file exists.'''
+    keyring.migrate_client_credentials(instance)
 
-    clientcred = build_clientcred_filename(instance)
+    if not (keyring.has_credential(instance, keyring.CREDENTIAL_CLIENT_ID) and
+            keyring.has_credential(instance, keyring.CREDENTIAL_CLIENT_SECRET)):
+        click.echo('client credentials for {} do not exist; try `fediplay register`'.format(instance))
+        sys.exit(1)
 
-    if path.exists(clientcred):
-        return clientcred
-
-    if path.exists('clientcred.secret'):
-        click.echo('==> Migrating clientcred.secret to ' + clientcred)
-        os.rename('clientcred.secret', clientcred)
-        return clientcred
-
-    click.echo(clientcred + ' does not exist; try `fediplay register`')
-    sys.exit(1)
+    return (
+        keyring.get_credential(instance, keyring.CREDENTIAL_CLIENT_ID),
+        keyring.get_credential(instance, keyring.CREDENTIAL_CLIENT_SECRET)
+    )
 
 @click.group()
 def cli():
@@ -76,43 +58,30 @@ def cli():
 def register(instance):
     '''Register fediplay on your Mastodon instance.'''
 
-    clientcred = build_clientcred_filename(instance)
-
-    if path.exists(clientcred):
-        click.echo(clientcred + ' already exists')
-        sys.exit(1)
-
-    mastodon.register(instance, clientcred)
+    mastodon.register(instance)
 
 @cli.command()
 @click.argument('instance')
 def login(instance):
     '''Log in to your Mastodon instance.'''
 
-    clientcred = ensure_clientcred(instance)
-
-    usercred = build_usercred_filename(instance)
-    if path.exists(usercred):
-        click.echo(usercred + ' already exists')
-        sys.exit(1)
-
-    client = mastodon.build_client(instance, clientcred)
+    client_id, client_secret = get_client_credentials(instance)
 
     click.echo('Open this page in your browser and follow the instructions.')
     click.echo('Paste the code here.')
     click.echo('')
-    click.echo(mastodon.get_auth_request_url(client))
+    click.echo(mastodon.get_auth_request_url(instance, client_id, client_secret))
     click.echo('')
 
     grant_code = input('Code: ')
-    mastodon.login(client, grant_code, usercred)
+    mastodon.login(instance, client_id, client_secret, grant_code)
 
 @cli.command()
 @click.argument('instance')
 def stream(instance):
     '''Stream music from your timeline.'''
 
-    clientcred = ensure_clientcred(instance)
-    usercred = ensure_usercred(instance)
+    client_id, client_secret = get_client_credentials(instance)
+    access_token = get_access_token(instance)
 
-    mastodon.stream(instance, clientcred, usercred, cache_dir=dirs.user_cache_dir)
+    mastodon.stream(instance, client_id, client_secret, access_token, cache_dir=keyring.dirs.user_cache_dir)
