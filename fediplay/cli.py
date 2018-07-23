@@ -8,6 +8,7 @@ import appdirs
 import click
 from mastodon import Mastodon
 
+from fediplay.dirs import DIRS
 import fediplay.mastodon as mastodon
 import fediplay.keyring as keyring
 
@@ -15,11 +16,11 @@ import fediplay.keyring as keyring
 def ensure_dirs():
     '''Make sure the application directories exist.'''
 
-    if not path.exists(keyring.dirs.user_config_dir):
-        os.makedirs(keyring.dirs.user_config_dir)
+    if not path.exists(DIRS.user_config_dir):
+        os.makedirs(DIRS.user_config_dir)
 
-    if not path.exists(keyring.dirs.user_cache_dir):
-        os.makedirs(keyring.dirs.user_cache_dir)
+    if not path.exists(DIRS.user_cache_dir):
+        os.makedirs(DIRS.user_cache_dir)
 
 def get_access_token(instance):
     '''Ensure the user credential exists.'''
@@ -84,4 +85,4 @@ def stream(instance):
     client_id, client_secret = get_client_credentials(instance)
     access_token = get_access_token(instance)
 
-    mastodon.stream(instance, client_id, client_secret, access_token, cache_dir=keyring.dirs.user_cache_dir)
+    mastodon.stream(instance, client_id, client_secret, access_token, cache_dir=DIRS.user_cache_dir)

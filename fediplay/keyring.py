@@ -7,13 +7,13 @@ import appdirs
 import click
 from keyring import get_password, set_password
 
+from fediplay.dirs import DIRS
+
 
 SERVICE_NAME = 'fediplay'
 CREDENTIAL_CLIENT_ID = 'client_id'
 CREDENTIAL_CLIENT_SECRET = 'client_secret'
 CREDENTIAL_ACCESS_TOKEN = 'access_token'
-
-dirs = appdirs.AppDirs('fediplay', 'zigg')
 
 def build_username(instance, credential_kind):
     return credential_kind + '@' + instance
@@ -42,7 +42,7 @@ def migrate_client_credentials(instance):
             os.unlink(filename)
 
     migrate_and_unlink('clientcred.secret')
-    migrate_and_unlink(path.join(dirs.user_config_dir, instance + '.clientcred.secret'))
+    migrate_and_unlink(path.join(DIRS.user_config_dir, instance + '.clientcred.secret'))
 
 def migrate_access_token(instance):
     def migrate_and_unlink(filename):
@@ -57,4 +57,4 @@ def migrate_access_token(instance):
             os.unlink(filename)
 
     migrate_and_unlink('usercred.secret')
-    migrate_and_unlink(path.join(dirs.user_config_dir, instance + '.usercred.secret'))
+    migrate_and_unlink(path.join(DIRS.user_config_dir, instance + '.usercred.secret'))
