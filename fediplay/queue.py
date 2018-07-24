@@ -62,7 +62,7 @@ class Getter(object):
         self.cache_dir = cache_dir
 
     def _progress_hook(self, progress):
-        if progress['status'] == 'downloading' and progress['filename'] not in self.filenames:
+        if progress['status'] == 'finished' and progress['filename'] not in self.filenames:
             self.filenames.append(progress['filename'])
 
     def get(self, url):
