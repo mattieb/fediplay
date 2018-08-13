@@ -12,6 +12,8 @@ from fediplay.queue import Queue
 
 Mastodon = mastodon.Mastodon
 
+LISTEN_TO_HASHTAG = 'fediplay'
+
 
 def api_base_url(instance):
     '''Create an API base url from an instance name.'''
@@ -26,7 +28,7 @@ class StreamListener(mastodon.StreamListener):
 
     def on_update(self, status):
         tags = extract_tags(status)
-        if 'fediplay' in tags:
+        if LISTEN_TO_HASHTAG in tags:
             links = extract_links(status)
             for link in links:
                 try:
@@ -67,6 +69,8 @@ def stream(instance, client_id, client_secret, access_token, cache_dir='.'):
     client = build_client(instance, client_id, client_secret, access_token)
     listener = StreamListener(Queue(cache_dir))
     click.echo('==> Streaming from {}'.format(instance))
+    for t in client.timeline_hashtag(LISTEN_TO_HASHTAG, limit=1):
+        listener.on_update(t)
     client.stream_user(listener)
 
 def extract_tags(toot):
