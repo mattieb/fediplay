@@ -79,10 +79,11 @@ def login(instance):
 
 @cli.command()
 @click.argument('instance')
-def stream(instance):
+@click.argument('users', nargs=-1)
+def stream(instance, users):
     '''Stream music from your timeline.'''
 
     client_id, client_secret = get_client_credentials(instance)
     access_token = get_access_token(instance)
 
-    mastodon.stream(instance, client_id, client_secret, access_token, cache_dir=DIRS.user_cache_dir)
+    mastodon.stream(instance, users, client_id, client_secret, access_token, cache_dir=DIRS.user_cache_dir)

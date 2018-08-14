@@ -21,10 +21,13 @@ def api_base_url(instance):
 class StreamListener(mastodon.StreamListener):
     '''Listens to a Mastodon timeline and adds links the given Queue.'''
 
-    def __init__(self, queue):
+    def __init__(self, queue, users):
         self.queue = queue
+        self.users = users
 
     def on_update(self, status):
+        if self.users and status.account.username not in self.users:
+            return
         tags = extract_tags(status)
         if 'fediplay' in tags:
             links = extract_links(status)
@@ -61,11 +64,12 @@ def login(instance, client_id, client_secret, grant_code):
     access_token = client.log_in(code=grant_code, scopes=['read'])
     keyring.set_credential(instance, keyring.CREDENTIAL_ACCESS_TOKEN, access_token)
 
-def stream(instance, client_id, client_secret, access_token, cache_dir='.'):
+def stream(instance, users, client_id, client_secret, access_token, cache_dir='.'):
     '''Stream statuses and add them to a queue.'''
 
     client = build_client(instance, client_id, client_secret, access_token)
-    listener = StreamListener(Queue(cache_dir))
+    users = [normalize_username(u, instance) for u in users]
+    listener = StreamListener(Queue(cache_dir), users)
     click.echo('==> Streaming from {}'.format(instance))
     client.stream_user(listener)
 
@@ -73,6 +77,14 @@ def extract_tags(toot):
     '''Extract tags from a toot.'''
 
     return [tag['name'] for tag in toot['tags']]
+
+def normalize_username(user, instance):
+    # If user was specified with an @ at beggining, remove it
+    user = user.lstrip('@')
+    tmp = user.split('@')
+    # remove instance if it is our own instance
+    return user if (len(tmp) == 1 or tmp[1] != instance) else tmp[0]
+
 
 def link_is_internal(link):
     '''Determines if a link is internal to the Mastodon instance.'''
