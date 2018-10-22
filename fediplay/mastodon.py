@@ -1,5 +1,7 @@
 '''Mastodon interface.'''
 
+LISTEN_TO_HASHTAG = 'fediplay'
+
 from os import umask
 
 import click
@@ -28,21 +30,26 @@ class StreamListener(mastodon.StreamListener):
         self.users = users
 
         if options['debug']:
-            print('listener initialized with users={}'.format(self.users))
+            print('listener initialized with users={!r}'.format(self.users))
 
     def on_update(self, status):
         if options['debug']:
-            print('status: {}'.format(repr(status)))
-            print('incoming toot: username={}'.format(status.account.acct))
+            print('incoming status: acct={!r}'.format(status.account.acct))
 
         if self.users and normalize_username(status.account.acct, self.instance) not in self.users:
             if options['debug']:
-                print('skipping toot due to username filtering')
+                print('skipping status due to username filtering')
             return
 
         tags = extract_tags(status)
-        if 'fediplay' in tags:
+        if options['debug']:
+            print('expecting: {!r}, extracted tags: {!r}'.format(LISTEN_TO_HASHTAG, tags))
+
+        if LISTEN_TO_HASHTAG in tags:
             links = extract_links(status)
+            if options['debug']:
+                print('links: {!r}'.format(links))
+
             for link in links:
                 try:
                     click.echo('==> Trying {}'.format(link))
@@ -82,6 +89,15 @@ def stream(instance, users, client_id, client_secret, access_token, cache_dir='.
     client = build_client(instance, client_id, client_secret, access_token)
     users = [normalize_username(user, instance) for user in users]
     listener = StreamListener(Queue(cache_dir), instance, users)
+
+    existing_statuses = client.timeline_hashtag(LISTEN_TO_HASHTAG, limit=1)
+
+    if options['debug']:
+        print('existing_statuses: {!r}'.format(existing_statuses))
+
+    for status in existing_statuses:
+        listener.on_update(status)
+
     click.echo('==> Streaming from {}'.format(instance))
     client.stream_user(listener)
 
@@ -94,7 +110,7 @@ def normalize_username(user, instance):
     user = user.lstrip('@')
     parts = user.split('@')
     if options['debug']:
-        print('parts: {}'.format(repr(parts)))
+        print('parts: {!r}'.format(parts))
 
     if len(parts) == 1 or parts[1] == instance:
         return parts[0]
@@ -105,6 +121,10 @@ def link_is_internal(link):
     '''Determines if a link is internal to the Mastodon instance.'''
 
     classes = link.attrib.get('class', '').split(' ')
+
+    if options['debug']:
+        print('href: {!r}, classes: {!r}'.format(link.attrib['href'], classes))
+
     if classes:
         return 'mention' in classes
 
