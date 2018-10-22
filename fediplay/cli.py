@@ -1,5 +1,7 @@
 '''Entry point for command-line interface.'''
 
+options = {'debug': False}
+
 import os
 path = os.path
 import sys
@@ -49,8 +51,11 @@ def get_client_credentials(instance):
     )
 
 @click.group()
-def cli():
+@click.option('-d', '--debug', is_flag=True, help='Print debug messages.')
+def cli(debug):
     '''A program to play music your friends post on Mastodon.'''
+
+    options['debug'] = debug
 
     ensure_dirs()
 
@@ -79,10 +84,11 @@ def login(instance):
 
 @cli.command()
 @click.argument('instance')
-def stream(instance):
+@click.argument('users', nargs=-1)
+def stream(instance, users):
     '''Stream music from your timeline.'''
 
     client_id, client_secret = get_client_credentials(instance)
     access_token = get_access_token(instance)
 
-    mastodon.stream(instance, client_id, client_secret, access_token, cache_dir=DIRS.user_cache_dir)
+    mastodon.stream(instance, users, client_id, client_secret, access_token, cache_dir=DIRS.user_cache_dir)

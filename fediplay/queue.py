@@ -8,6 +8,7 @@ from threading import Thread, Lock
 import click
 from youtube_dl import YoutubeDL, utils
 
+from fediplay.cli import options
 import fediplay.env as env
 
 
@@ -62,7 +63,13 @@ class Getter(object):
         self.cache_dir = cache_dir
 
     def _progress_hook(self, progress):
-        if progress['status'] == 'downloading' and progress['filename'] not in self.filenames:
+        if options['debug']:
+            print('progress hook: status {}, filename {}'.format(
+                repr(progress['status']), repr(progress['filename'])
+            ))
+
+        if (progress['status'] in ('downloading', 'finished') and 
+            progress['filename'] not in self.filenames):
             self.filenames.append(progress['filename'])
 
     def get(self, url):

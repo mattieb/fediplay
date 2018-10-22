@@ -7,6 +7,7 @@ from lxml.etree import HTML # pylint: disable=no-name-in-module
 import mastodon
 from youtube_dl.utils import DownloadError
 
+from fediplay.cli import options
 import fediplay.keyring as keyring
 from fediplay.queue import Queue
 
@@ -21,10 +22,24 @@ def api_base_url(instance):
 class StreamListener(mastodon.StreamListener):
     '''Listens to a Mastodon timeline and adds links the given Queue.'''
 
-    def __init__(self, queue):
+    def __init__(self, queue, instance, users):
         self.queue = queue
+        self.instance = instance
+        self.users = users
+
+        if options['debug']:
+            print('listener initialized with users={}'.format(self.users))
 
     def on_update(self, status):
+        if options['debug']:
+            print('status: {}'.format(repr(status)))
+            print('incoming toot: username={}'.format(status.account.acct))
+
+        if self.users and normalize_username(status.account.acct, self.instance) not in self.users:
+            if options['debug']:
+                print('skipping toot due to username filtering')
+            return
+
         tags = extract_tags(status)
         if 'fediplay' in tags:
             links = extract_links(status)
@@ -61,11 +76,12 @@ def login(instance, client_id, client_secret, grant_code):
     access_token = client.log_in(code=grant_code, scopes=['read'])
     keyring.set_credential(instance, keyring.CREDENTIAL_ACCESS_TOKEN, access_token)
 
-def stream(instance, client_id, client_secret, access_token, cache_dir='.'):
+def stream(instance, users, client_id, client_secret, access_token, cache_dir='.'):
     '''Stream statuses and add them to a queue.'''
 
     client = build_client(instance, client_id, client_secret, access_token)
-    listener = StreamListener(Queue(cache_dir))
+    users = [normalize_username(user, instance) for user in users]
+    listener = StreamListener(Queue(cache_dir), instance, users)
     click.echo('==> Streaming from {}'.format(instance))
     client.stream_user(listener)
 
@@ -73,6 +89,17 @@ def extract_tags(toot):
     '''Extract tags from a toot.'''
 
     return [tag['name'] for tag in toot['tags']]
+
+def normalize_username(user, instance):
+    user = user.lstrip('@')
+    parts = user.split('@')
+    if options['debug']:
+        print('parts: {}'.format(repr(parts)))
+
+    if len(parts) == 1 or parts[1] == instance:
+        return parts[0]
+    else:
+        return user
 
 def link_is_internal(link):
     '''Determines if a link is internal to the Mastodon instance.'''
