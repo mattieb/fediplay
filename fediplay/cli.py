@@ -1,5 +1,7 @@
 '''Entry point for command-line interface.'''
 
+options = {'debug': False}
+
 import os
 path = os.path
 import sys
@@ -49,8 +51,11 @@ def get_client_credentials(instance):
     )
 
 @click.group()
-def cli():
+@click.option('-d', '--debug', is_flag=True, help='Print debug messages.')
+def cli(debug):
     '''A program to play music your friends post on Mastodon.'''
+
+    options['debug'] = debug
 
     ensure_dirs()
 
