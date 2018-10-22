@@ -65,10 +65,10 @@ class Getter(object):
     def _progress_hook(self, progress):
         if options['debug']:
             print('progress hook: status {}, filename {}'.format(
-                progress['status'], progress['filename']
+                repr(progress['status']), repr(progress['filename'])
             ))
 
-        if (progress['status'] == 'downloading' and 
+        if (progress['status'] in ('downloading', 'finished') and 
             progress['filename'] not in self.filenames):
             self.filenames.append(progress['filename'])
 

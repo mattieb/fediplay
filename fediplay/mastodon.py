@@ -22,8 +22,9 @@ def api_base_url(instance):
 class StreamListener(mastodon.StreamListener):
     '''Listens to a Mastodon timeline and adds links the given Queue.'''
 
-    def __init__(self, queue, users):
+    def __init__(self, queue, instance, users):
         self.queue = queue
+        self.instance = instance
         self.users = users
 
         if options['debug']:
@@ -31,9 +32,10 @@ class StreamListener(mastodon.StreamListener):
 
     def on_update(self, status):
         if options['debug']:
-            print('incoming toot: username={}'.format(status.account.username))
+            print('status: {}'.format(repr(status)))
+            print('incoming toot: username={}'.format(status.account.acct))
 
-        if self.users and status.account.username not in self.users:
+        if self.users and normalize_username(status.account.acct, self.instance) not in self.users:
             if options['debug']:
                 print('skipping toot due to username filtering')
             return
@@ -79,7 +81,7 @@ def stream(instance, users, client_id, client_secret, access_token, cache_dir='.
 
     client = build_client(instance, client_id, client_secret, access_token)
     users = [normalize_username(user, instance) for user in users]
-    listener = StreamListener(Queue(cache_dir), users)
+    listener = StreamListener(Queue(cache_dir), instance, users)
     click.echo('==> Streaming from {}'.format(instance))
     client.stream_user(listener)
 
@@ -89,11 +91,15 @@ def extract_tags(toot):
     return [tag['name'] for tag in toot['tags']]
 
 def normalize_username(user, instance):
-    # If user was specified with an @ at beggining, remove it
     user = user.lstrip('@')
-    tmp = user.split('@')
-    # remove instance if it is our own instance
-    return user if (len(tmp) == 1 or tmp[1] != instance) else tmp[0]
+    parts = user.split('@')
+    if options['debug']:
+        print('parts: {}'.format(repr(parts)))
+
+    if len(parts) == 1 or parts[1] == instance:
+        return parts[0]
+    else:
+        return user
 
 def link_is_internal(link):
     '''Determines if a link is internal to the Mastodon instance.'''
