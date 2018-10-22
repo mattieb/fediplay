@@ -2,9 +2,9 @@
 
 A Mastodon client that automatically plays your friends' music as they toot links to it.
 
-## What's new in 2.1
+## What's new in 2.2
 
-If you've been using fediplay before, the all-new version 2.1 will be a little different!
+If you've been using fediplay before, the all-new version 2.2 will be a little different!
 
 -   You now specify the instance you want to stream from on the command line, instead of setting it in the environment. fediplay has been upgraded with the power of [Click](http://click.pocoo.org/) to give it a more modern command-line interface.
 
@@ -39,4 +39,10 @@ Use `fediplay stream example.com` to start the stream. You'll need to log in the
 Toots that include the hashtag #fediplay and have as their first link something that [youtube-dl](https://rg3.github.io/youtube-dl/) can play, will!
 
 If new #fediplay toots come in while music is playing, they'll be downloaded immediately and queued to be played later.
+
+Since version 2.2, thanks to [@bbonf](https://github.com/bbonf), if there's a recent #fediplay toot in your timeline, it'll be pulled up and played before the stream starts. Great if you just missed a song before starting your stream!
+
+### Filtering
+
+Since version 2.2, you can also, thanks to [@Jenkyrados](https://github.com/Jenkyrados), specify users to filter! Just add them to the command line after the server name, e.g. `fediplay stream example.com @user @otheruser@example.net`.
 
