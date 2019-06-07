@@ -8,12 +8,12 @@ import sys
 
 import appdirs
 import click
+import atexit
 from mastodon import Mastodon
 
 from fediplay.dirs import DIRS
 import fediplay.mastodon as mastodon
 import fediplay.keyring as keyring
-
 
 def ensure_dirs():
     '''Make sure the application directories exist.'''
@@ -85,10 +85,27 @@ def login(instance):
 @cli.command()
 @click.argument('instance')
 @click.argument('users', nargs=-1)
-def stream(instance, users):
+@click.option('--clean-up-files', is_flag=True)
+def stream(instance, users, clean_up_files):
     '''Stream music from your timeline.'''
+    if ( clean_up_files ):
+        atexit.register(delete_files)
 
     client_id, client_secret = get_client_credentials(instance)
     access_token = get_access_token(instance)
 
     mastodon.stream(instance, users, client_id, client_secret, access_token, cache_dir=DIRS.user_cache_dir)
+
+def delete_files():
+    cache_dir = DIRS.user_cache_dir
+    for the_file in os.listdir(cache_dir):
+        file_path = os.path.join(cache_dir, the_file)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+            print('deleted ' + the_file)
+
+@cli.command()  
+def clean_up_files():
+    delete_files()
+
+
