@@ -1,6 +1,7 @@
 '''The play queue.'''
 
-from os import path
+from os import path, listdir, makedirs, remove, utime
+from time import time, localtime
 import shlex
 from subprocess import run
 from threading import Thread, Lock
@@ -56,7 +57,6 @@ class Getter(object):
     '''Fetches music from a url.'''
 
     # pylint: disable=too-few-public-methods
-
     def __init__(self, cache_dir):
         self.filename = None
         self.filenames = []
@@ -73,6 +73,9 @@ class Getter(object):
     def get(self, url):
         '''Fetches music from the given url.'''
 
+        '''deleting files here'''
+        auto_delete_files(self.cache_dir)
+
         options = {
             'format': 'mp3/mp4',
             'nocheckcertificate': env.no_check_certificate(),
@@ -82,6 +85,9 @@ class Getter(object):
         with YoutubeDL(options) as downloader:
             downloader.download([url])
 
+        for file in self.filenames:
+            utime(file)
+
         return self.filenames
 
 def build_play_command(filename):
@@ -90,3 +96,11 @@ def build_play_command(filename):
     escaped_filename = shlex.quote(filename)
     template = env.play_command()
     return template.format(filename=escaped_filename)
+
+def auto_delete_files(cache_dir):
+    for the_file in listdir(cache_dir):
+        file_path = path.join(cache_dir, the_file)
+        if path.isfile(file_path):
+            file_time = path.getmtime(file_path)
+            if file_time + 604800 < time():
+                remove(file_path)
