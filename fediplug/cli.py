@@ -11,9 +11,9 @@ import click
 import atexit
 from mastodon import Mastodon
 
-from fediplay.dirs import DIRS
-import fediplay.mastodon as mastodon
-import fediplay.keyring as keyring
+from fediplug.dirs import DIRS
+import fediplug.mastodon as mastodon
+import fediplug.keyring as keyring
 
 def ensure_dirs():
     '''Make sure the application directories exist.'''
@@ -30,7 +30,7 @@ def get_access_token(instance):
     keyring.migrate_access_token(instance)
 
     if not keyring.has_credential(instance, keyring.CREDENTIAL_ACCESS_TOKEN):
-        click.echo('user credential for {} does not exist; try `fediplay login`'.format(instance))
+        click.echo('user credential for {} does not exist; try `fediplug login`'.format(instance))
         sys.exit(1)
 
     return keyring.get_credential(instance, keyring.CREDENTIAL_ACCESS_TOKEN)
@@ -42,7 +42,7 @@ def get_client_credentials(instance):
 
     if not (keyring.has_credential(instance, keyring.CREDENTIAL_CLIENT_ID) and
             keyring.has_credential(instance, keyring.CREDENTIAL_CLIENT_SECRET)):
-        click.echo('client credentials for {} do not exist; try `fediplay register`'.format(instance))
+        click.echo('client credentials for {} do not exist; try `fediplug register`'.format(instance))
         sys.exit(1)
 
     return (
@@ -62,7 +62,7 @@ def cli(debug):
 @cli.command()
 @click.argument('instance')
 def register(instance):
-    '''Register fediplay on your Mastodon instance.'''
+    '''Register fediplug on your Mastodon instance.'''
 
     mastodon.register(instance)
 

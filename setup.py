@@ -1,9 +1,9 @@
 from setuptools import setup
 
 setup(
-    name='fediplay',
+    name='fediplug',
     version='2.0',
-    py_modules=['fediplay'],
+    py_modules=['fediplug'],
     install_requires=[
         'appdirs',
         'click',
@@ -15,7 +15,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'fediplay = fediplay:cli'
+            'fediplug = fediplug:cli'
         ]
     }
 )

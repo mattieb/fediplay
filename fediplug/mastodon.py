@@ -1,6 +1,6 @@
 '''Mastodon interface.'''
 
-LISTEN_TO_HASHTAG = 'fediplay'
+LISTEN_TO_HASHTAG = 'fediplug'
 
 from os import umask
 
@@ -9,9 +9,9 @@ from lxml.etree import HTML # pylint: disable=no-name-in-module
 import mastodon
 from youtube_dl.utils import DownloadError
 
-from fediplay.cli import options
-import fediplay.keyring as keyring
-from fediplay.queue import Queue
+from fediplug.cli import options
+import fediplug.keyring as keyring
+from fediplug.queue import Queue
 
 Mastodon = mastodon.Mastodon
 
@@ -59,9 +59,9 @@ class StreamListener(mastodon.StreamListener):
                     pass
 
 def register(instance):
-    '''Register fediplay to a Mastodon server and save the client credentials.'''
+    '''Register fediplug to a Mastodon server and save the client credentials.'''
 
-    client_id, client_secret = Mastodon.create_app('fediplay', scopes=['read'], api_base_url=api_base_url(instance))
+    client_id, client_secret = Mastodon.create_app('fediplug', scopes=['read'], api_base_url=api_base_url(instance))
     keyring.set_credential(instance, keyring.CREDENTIAL_CLIENT_ID, client_id)
     keyring.set_credential(instance, keyring.CREDENTIAL_CLIENT_SECRET, client_secret)
 

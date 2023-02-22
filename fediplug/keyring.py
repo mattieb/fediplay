@@ -7,10 +7,10 @@ import appdirs
 import click
 from keyring import get_password, set_password
 
-from fediplay.dirs import DIRS
+from fediplug.dirs import DIRS
 
 
-SERVICE_NAME = 'fediplay'
+SERVICE_NAME = 'fediplug'
 CREDENTIAL_CLIENT_ID = 'client_id'
 CREDENTIAL_CLIENT_SECRET = 'client_secret'
 CREDENTIAL_ACCESS_TOKEN = 'access_token'
