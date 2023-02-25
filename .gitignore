@@ -8,4 +8,5 @@
 .pytest_cache
 .vscode
 __pycache__
-fediplay.iml
+fediplug.iml
+venv

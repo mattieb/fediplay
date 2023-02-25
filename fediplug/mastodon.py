@@ -5,13 +5,15 @@ LISTEN_TO_HASHTAG = 'fediplug'
 from os import umask
 
 import click
-from lxml.etree import HTML # pylint: disable=no-name-in-module
+import lxml.html as lh
+from lxml.html.clean import clean_html
 import mastodon
-from youtube_dl.utils import DownloadError
+import asyncio
 
 from fediplug.cli import options
 import fediplug.keyring as keyring
-from fediplug.queue import Queue
+#from fediplug.queue import Queue
+from fediplug.buttplugio import trigger_actuators
 
 Mastodon = mastodon.Mastodon
 
@@ -22,19 +24,20 @@ def api_base_url(instance):
     return 'https://' + instance
 
 class StreamListener(mastodon.StreamListener):
-    '''Listens to a Mastodon timeline and adds links the given Queue.'''
+    '''Listens to a Mastodon timeline and adds buttplug instructions the given queue.'''
 
-    def __init__(self, queue, instance, users):
-        self.queue = queue
+    def __init__(self, plug_client, instance, users, event_loop):
+        self.plug_client = plug_client
         self.instance = instance
         self.users = users
+        self.event_loop = event_loop
 
         if options['debug']:
-            print('listener initialized with users={!r}'.format(self.users))
+            print(rf'listener initialized with users={self.users}')
 
     def on_update(self, status):
         if options['debug']:
-            print('incoming status: acct={!r}'.format(status.account.acct))
+            print(rf'incoming status: acct={status.account.acct}')
 
         if self.users and normalize_username(status.account.acct, self.instance) not in self.users:
             if options['debug']:
@@ -43,20 +46,29 @@ class StreamListener(mastodon.StreamListener):
 
         tags = extract_tags(status)
         if options['debug']:
-            print('expecting: {!r}, extracted tags: {!r}'.format(LISTEN_TO_HASHTAG, tags))
+            print(rf'expecting: {LISTEN_TO_HASHTAG}, extracted tags: {tags}')
 
         if LISTEN_TO_HASHTAG in tags:
-            links = extract_links(status)
+            ''' Here we extract the instructions for the butplug'''
+            # TODO: still need to write extraction code
+            buttplug_instructions = extract_buttplug_instructions(status)
+            click.echo('queueing instructions')
+            self.event_loop.run_until_complete(trigger_actuators(self.plug_client, buttplug_instructions))
+
+
+
+'''
             if options['debug']:
-                print('links: {!r}'.format(links))
+                print(rf'instructions: {buttplug_instructions}')
 
             for link in links:
                 try:
-                    click.echo('==> Trying {}'.format(link))
+                    click.echo(rf'==> Trying {link}')
                     self.queue.add(link)
                     return
                 except DownloadError:
                     pass
+'''
 
 def register(instance):
     '''Register fediplug to a Mastodon server and save the client credentials.'''
@@ -83,22 +95,23 @@ def login(instance, client_id, client_secret, grant_code):
     access_token = client.log_in(code=grant_code, scopes=['read'])
     keyring.set_credential(instance, keyring.CREDENTIAL_ACCESS_TOKEN, access_token)
 
-def stream(instance, users, client_id, client_secret, access_token, cache_dir='.'):
+def stream(instance, users, client_id, client_secret, access_token, plug_client, event_loop):
     '''Stream statuses and add them to a queue.'''
 
     client = build_client(instance, client_id, client_secret, access_token)
     users = [normalize_username(user, instance) for user in users]
-    listener = StreamListener(Queue(cache_dir), instance, users)
+    listener = StreamListener(plug_client, instance, users, event_loop)
+    
 
     existing_statuses = client.timeline_hashtag(LISTEN_TO_HASHTAG, limit=1)
 
     if options['debug']:
-        print('existing_statuses: {!r}'.format(existing_statuses))
+        print(rf'existing_statuses: {existing_statuses}')
 
     for status in existing_statuses:
         listener.on_update(status)
 
-    click.echo('==> Streaming from {}'.format(instance))
+    click.echo(f'==> Streaming from {instance}')
     client.stream_user(listener)
 
 def extract_tags(toot):
@@ -110,29 +123,18 @@ def normalize_username(user, instance):
     user = user.lstrip('@')
     parts = user.split('@')
     if options['debug']:
-        print('parts: {!r}'.format(parts))
+        print(rf'parts: {parts}')
 
     if len(parts) == 1 or parts[1] == instance:
         return parts[0]
     else:
         return user
 
-def link_is_internal(link):
-    '''Determines if a link is internal to the Mastodon instance.'''
-
-    classes = link.attrib.get('class', '').split(' ')
-
-    if options['debug']:
-        print('href: {!r}, classes: {!r}'.format(link.attrib['href'], classes))
-
-    if classes:
-        return 'mention' in classes
-
-    return False
-
-def extract_links(toot):
-    '''Extract all external links from a toot.'''
-
-    html = HTML(toot['content'])
-    all_links = html.cssselect('a')
-    return [link.attrib['href'] for link in all_links if not link_is_internal(link)]
+def extract_buttplug_instructions(toot):
+    '''Extract buttplug instruction informations from a toot.'''
+    doc_list = []
+    doc = lh.fromstring(toot['content'])
+    doc = clean_html(doc)
+    doc_list.append(doc.text_content())
+    print(rf'extracted buttplug_instruction: {doc_list}')
+    return doc_list

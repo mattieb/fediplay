@@ -6,23 +6,18 @@ import os
 path = os.path
 import sys
 
+import atexit
 import appdirs
-import click
+import anyio
+import click as click
 import atexit
 from mastodon import Mastodon
+import asyncio
 
 from fediplug.dirs import DIRS
 import fediplug.mastodon as mastodon
 import fediplug.keyring as keyring
-
-def ensure_dirs():
-    '''Make sure the application directories exist.'''
-
-    if not path.exists(DIRS.user_config_dir):
-        os.makedirs(DIRS.user_config_dir)
-
-    if not path.exists(DIRS.user_cache_dir):
-        os.makedirs(DIRS.user_cache_dir)
+import fediplug.buttplugio as buttplugio
 
 def get_access_token(instance):
     '''Ensure the user credential exists.'''
@@ -30,7 +25,7 @@ def get_access_token(instance):
     keyring.migrate_access_token(instance)
 
     if not keyring.has_credential(instance, keyring.CREDENTIAL_ACCESS_TOKEN):
-        click.echo('user credential for {} does not exist; try `fediplug login`'.format(instance))
+        click.echo(f'user credential for {instance} does not exist; try `fediplug login`')
         sys.exit(1)
 
     return keyring.get_credential(instance, keyring.CREDENTIAL_ACCESS_TOKEN)
@@ -42,7 +37,7 @@ def get_client_credentials(instance):
 
     if not (keyring.has_credential(instance, keyring.CREDENTIAL_CLIENT_ID) and
             keyring.has_credential(instance, keyring.CREDENTIAL_CLIENT_SECRET)):
-        click.echo('client credentials for {} do not exist; try `fediplug register`'.format(instance))
+        click.echo(f'client credentials for {instance} do not exist; try `fediplug register`')
         sys.exit(1)
 
     return (
@@ -56,8 +51,6 @@ def cli(debug):
     '''A program to play music your friends post on Mastodon.'''
 
     options['debug'] = debug
-
-    ensure_dirs()
 
 @cli.command()
 @click.argument('instance')
@@ -85,27 +78,13 @@ def login(instance):
 @cli.command()
 @click.argument('instance')
 @click.argument('users', nargs=-1)
-@click.option('--clean-up-files', is_flag=True)
-def stream(instance, users, clean_up_files):
-    '''Stream music from your timeline.'''
-    if ( clean_up_files ):
-        atexit.register(delete_files)
+def stream(instance, users):
+    '''control buttplug.io device from your timeline.'''
+    event_loop = asyncio.get_event_loop()
+    plug_client = event_loop.run_until_complete(buttplugio.connect_plug_client())
+    plug_client = event_loop.run_until_complete(buttplugio.scan_devices(plug_client))
 
     client_id, client_secret = get_client_credentials(instance)
     access_token = get_access_token(instance)
 
-    mastodon.stream(instance, users, client_id, client_secret, access_token, cache_dir=DIRS.user_cache_dir)
-
-def delete_files():
-    cache_dir = DIRS.user_cache_dir
-    for the_file in os.listdir(cache_dir):
-        file_path = os.path.join(cache_dir, the_file)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
-            print('deleted ' + the_file)
-
-@cli.command()  
-def clean_up_files():
-    delete_files()
-
-
+    mastodon.stream(instance, users, client_id, client_secret, access_token, plug_client, event_loop)

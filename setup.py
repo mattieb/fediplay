@@ -11,7 +11,12 @@ setup(
         'lxml',
         'Mastodon.py',
         'python-dotenv',
-        'youtube-dl'
+        'asyncio',
+        'asyncclick',
+        'anyio',
+        'keyring',
+        'buttplug-py'
+        
     ],
     entry_points={
         'console_scripts': [
