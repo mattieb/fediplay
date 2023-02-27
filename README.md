@@ -1,48 +1,29 @@
 # fediplug
 
-A Mastodon client that automatically plays your friends' music as they toot links to it.
+A Mastodon client that automatically vibrates your buttplug.io devices as people on your timeline toot instructions.
 
-## What's new in 2.2
-
-If you've been using fediplug before, the all-new version 2.2 will be a little different!
-
--   You now specify the instance you want to stream from on the command line, instead of setting it in the environment. fediplug has been upgraded with the power of [Click](http://click.pocoo.org/) to give it a more modern command-line interface.
-
--   We use [appdirs](https://pypi.org/project/appdirs/) to keep downloaded music files in your operating system's user cache directory.
-
--   We use [keyring](https://pypi.org/project/keyring/) to store your client credentials and access token, securely if your operating system supports it. If you already have `.secret` files from an earlier version, we'll migrate them automatically for you.
-
-Be sure to follow all the instructions, including re-running `pipenv install` to update the installed dependencies.
-
-## Getting started
-
-fediplug comes configured to use `ffplay` from [FFmpeg](https://ffmpeg.org/) to actually play music.
-
--   On macOS, `ffplay` is part of the [Homebrew](https://brew.sh/) `ffmpeg` package, but you need to build it with `brew install ffmpeg --with-sdl2`.
-
--   On Windows, `ffplay` is part of the [Scoop](http://scoop.sh/) `ffmpeg` package.
+## getting started
 
 Use `pipenv install` from [Pipenv](https://docs.pipenv.org/) to install the Python dependencies and set up the fediplug script inside the virtual environment.
 
 You can use the fediplug script with either `pipenv run fediplug` or by entering the Pipenv shell with `pipenv shell` and just running `fediplug`.
 
-## Registering and logging in
+## registering and logging in
 
 To register fediplug to your instance, use `fediplug register example.com`.
 
 To log in to your instance, use `fediplug login example.com`.
 
-## Streaming
+## streaming
 
 Use `fediplug stream example.com` to start the stream. You'll need to log in the first time.
 
-Toots that include the hashtag #fediplug and have as their first link something that [youtube-dl](https://rg3.github.io/youtube-dl/) can play, will!
+Toots that include the hashtag #fediplug will trigger the buttplug.io device.
 
-If new #fediplug toots come in while music is playing, they'll be downloaded immediately and queued to be played later.
+If new #fediplug toots come in while instructions are being executed, they will be queued and executed later.
 
-Since version 2.2, thanks to [@bbonf](https://github.com/bbonf), if there's a recent #fediplug toot in your timeline, it'll be pulled up and played before the stream starts. Great if you just missed a song before starting your stream!
+If there's a recent #fediplug toot in your timeline, it'll be pulled up and executed before the stream starts.
 
-### Filtering
+### filtering
 
-Since version 2.2, you can also, thanks to [@Jenkyrados](https://github.com/Jenkyrados), specify users to filter! Just add them to the command line after the server name, e.g. `fediplug stream example.com @user @otheruser@example.net`.
-
+You can also filter instructions by user, so only their instructions are executed. Just add them to the command line after the server name, e.g. `fediplug stream example.com @user @otheruser@example.net`.
