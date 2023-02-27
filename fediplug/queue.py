@@ -8,7 +8,6 @@ import click
 import asyncio
 
 from fediplug.cli import options
-import fediplug.env as env
 import fediplug.buttplugio as buttplugio
 
 

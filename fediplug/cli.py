@@ -8,7 +8,6 @@ import sys
 
 import atexit
 import appdirs
-import anyio
 import click as click
 import atexit
 from mastodon import Mastodon

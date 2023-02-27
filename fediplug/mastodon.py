@@ -12,7 +12,7 @@ import asyncio
 
 from fediplug.cli import options
 import fediplug.keyring as keyring
-#from fediplug.queue import Queue
+from fediplug.queue import Queue
 from fediplug.buttplugio import trigger_actuators
 
 Mastodon = mastodon.Mastodon
