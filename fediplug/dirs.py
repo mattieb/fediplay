@@ -3,4 +3,4 @@
 from appdirs import AppDirs
 
 
-DIRS = AppDirs('fediplug', 'zigg')
+DIRS = AppDirs('fediplug', appauthor=False)
